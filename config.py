@@ -1,8 +1,4 @@
-"""Central configuration for the adversarially robust DDoS detection project.
-
-All hyperparameters and paths are defined here. Import this module in other
-files instead of hardcoding values.
-"""
+"""Central configuration for the adversarially robust DDoS detection project."""
 
 import torch
 from dataclasses import dataclass, field
@@ -13,7 +9,8 @@ from typing import List
 @dataclass
 class Config:
     # ------------------------------------------------------------------ paths
-    DATA_PATH: Path = Path("/kaggle/input/your-dataset/traffic.parquet")
+    DATA_PATH: Path = Path("/kaggle/input/datasets/hafsaaas/cci-ddos-custom-dataset/cicddos_balanced_slice.parquet")
+    INSDN_DIR: Path = Path("/kaggle/input/datasets/hafsaaas/insdn-dataset")
     OUTPUT_DIR: Path = Path("/kaggle/working")
     MODELS_DIR: Path = Path("/kaggle/working/models")
     RESULTS_DIR: Path = Path("/kaggle/working/results")
@@ -23,9 +20,11 @@ class Config:
 
     # --------------------------------------------------------- preprocessing
     TEST_SIZE: float = 0.15
-    VAL_SIZE: float = 0.15   # fraction of the remaining train set
+    VAL_SIZE: float = 0.15
 
-    # Non-feature columns to drop before modelling
+    # Non-feature columns to drop before modelling.
+    # The dhoogla CICDDoS slice already has IPs/Ports/Timestamps stripped,
+    # but we keep these here defensively in case we later switch datasets.
     DROP_COLS: List[str] = field(default_factory=lambda: [
         "Flow ID",
         "Source IP",
@@ -33,10 +32,11 @@ class Config:
         "Source Port",
         "Destination Port",
         "Timestamp",
+        "Label",  # original string label — we use Label_binary instead
     ])
 
     # ----------------------------------------------------- feature selection
-    NUM_FEATURES: int = 20   # top SHAP features to retain
+    NUM_FEATURES: int = 20
 
     # ------------------------------------------------------- model architecture
     CONV1_FILTERS: int = 32
@@ -54,13 +54,11 @@ class Config:
 
     # ------------------------------------------------------------ attacks
     FGSM_EPSILON: float = 0.05
-
     PGD_EPSILON: float = 0.05
     PGD_ALPHA: float = 0.01
     PGD_STEPS: int = 7
 
     # -------------------------------------------- adversarial training loss
-    # L_total = L_clean + ADV_LOSS_WEIGHT * L_adv
     ADV_LOSS_WEIGHT: float = 1.0
 
     # ----------------------------------------- robustness evaluation curve
@@ -75,15 +73,13 @@ class Config:
     PLOT_DPI: int = 400
 
     def __post_init__(self):
-        """Convert string paths to Path objects and create output dirs."""
         self.DATA_PATH = Path(self.DATA_PATH)
+        self.INSDN_DIR = Path(self.INSDN_DIR)
         self.OUTPUT_DIR = Path(self.OUTPUT_DIR)
         self.MODELS_DIR = Path(self.MODELS_DIR)
         self.RESULTS_DIR = Path(self.RESULTS_DIR)
-
         self.MODELS_DIR.mkdir(parents=True, exist_ok=True)
         self.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# Module-level singleton so other files can do `from config import CFG`
 CFG = Config()

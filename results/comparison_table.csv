@@ -1,0 +1,16 @@
+Condition,Metric,Baseline,Adversarially Trained
+CLEAN,accuracy,0.9976,0.9967
+CLEAN,precision,0.9996,0.9987
+CLEAN,recall,0.9955,0.9947
+CLEAN,f1,0.9976,0.9967
+CLEAN,roc_auc,0.9998,0.9998
+FGSM,accuracy,0.2687,0.9915
+FGSM,precision,0.1144,0.9964
+FGSM,recall,0.0686,0.9866
+FGSM,f1,0.0858,0.9915
+FGSM,roc_auc,,
+PGD,accuracy,0.2081,0.9909
+PGD,precision,0.0861,0.9929
+PGD,recall,0.0607,0.9888
+PGD,f1,0.0712,0.9909
+PGD,roc_auc,,
